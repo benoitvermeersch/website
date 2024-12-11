@@ -5,44 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrendSeeker</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #040707; /* Dark background */
-            color: #FFFFFF; /* Light text color */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            height: 100vh;
-            text-align: center;
-        }
-        h1 {
-            font-size: 3rem;
-            margin: 0.5em 0;
-            color: #E0E0E0; /* Slightly lighter than white */
-        }
-        p {
-            font-size: 1.2rem;
-            margin: 0.5em 0;
-        }
-        a {
-            font-size: 1rem;
-            color: #1E90FF; /* Link color */
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
+    body {
+        display: flex;
+        flex-direction: row; /* Divide into two parts */
+        height: 100vh;
+    }
+    .left {
+        flex: 1; /* Left part */
+        background: url('images/foto.png') no-repeat center center; 
+        background-size: cover; /* Ensure it fits completely */
+    }
+    .right {
+        flex: 1; /* Right part */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background-color: #040707;
+        color: white; /* Set text color to white */
+        font-family: 'Segoe UI', sans-serif; /* Set font to Segoe UI */
+    }
+    .icon-row {
+        display: flex;
+        justify-content: center;
+        gap: 20px; /* Add spacing between icons */
+        margin-top: 20px;
+    }
+    .icon-row img {
+        width: 41px; /* Adjust icon size */
+        height: 41px;
+        cursor: pointer;
+    }
+    #phone-number {
+        margin-top: 20px;
+        font-size: 16px;
+        display: none; /* Initially hidden */
+    }
     </style>
+    <script>
+        function toggleTelephoneIcon() {
+            const telephoneIcon = document.getElementById('telephone-icon');
+            const phoneNumber = document.getElementById('phone-number');
+            const iconRow = document.querySelector('.icon-row');
+
+            // Hide the telephone icon
+            telephoneIcon.style.display = 'none';
+
+            // Show the phone number
+            phoneNumber.style.display = 'block';
+
+            // Adjust icon alignment
+            iconRow.style.justifyContent = 'center';
+        }
+    </script>
 </head>
 <body>
-    <img src="images/logo.png" alt="TrendSeeker Logo" style="width: 300px; margin-bottom: 20px;">
-    <h1>TrendSeeker</h1>
-    <p>The new way to discover clothes</p>
-    <p><a href="https://www.instagram.com/trendseekerapp/" target="_blank">Visit our Instagram Page</a></p>
-    <p>Or send us an email at trendseekerapp@gmail.com</p>
-    <p>VAT Registration Number: BE1013551812</p>
-    <p>A Belgian-based company coming soon to the App Store</p>
+    <div class="left"></div>
+    <div class="right">
+        <img src="images/logo.png" alt="TrendSeeker Logo" style="width: 380px; margin-bottom: 20px;">
+        <p>The new way to discover clothes</p>
+
+        <div class="icon-row">
+            <a href="https://www.instagram.com/trendseekerapp/" target="_blank">
+                <img src="images/instagram.png" alt="Instagram Icon">
+            </a>
+            <a href="mailto:trendseekerapp@gmail.com">
+                <img src="images/email.png" alt="Email Icon">
+            </a>
+            <div>
+                <img id="telephone-icon" src="images/telephone.png" alt="Telephone Icon" onclick="toggleTelephoneIcon()">
+            </div>
+        </div>
+
+        <p id="phone-number">Phone Number: +32 490 41 50 77</p>
+        <p>VAT Registration Number: BE1013551812</p>
+        <p>A Belgian-based company coming soon to the App Store</p> 
+    </div>
 </body>
 </html>
