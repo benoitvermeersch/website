@@ -37,6 +37,21 @@
         height: 41px;
         cursor: pointer;
     }
+    .hover-effect {
+        color: gray;
+        text-decoration: none;
+        margin-right: 20px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .hover-effect:hover {
+        color: black; /* Change color on hover */
+        transform: scale(1.1); /* Slightly enlarge to simulate a click effect */
+    }
+
+    .hover-effect:active {
+        transform: scale(0.9); /* Shrink when clicked */
+    }
     #phone-number {
         margin-top: 20px;
         font-size: 16px;
@@ -81,11 +96,11 @@
         <p id="phone-number">Phone Number: +32 490 41 50 77</p>
         <p>VAT Registration Number: BE1013551812</p>
         <p>A Belgian-based company coming soon to the App Store</p>
-        <p style="margin-top: 80px;">
-            <a href="terms-of-service" style="color: LightGray; text-decoration: none; margin-right: 20px;">Terms of Service</a>
-            <a href="privacy-policy.html" style="color: Gray; text-decoration: none; margin-right: 20px;">Privacy Policy</a>
-            <a href="return-policy.html" style="color: white; text-decoration: none;">Return Policy</a>
-        </p>
+<p style="margin-top: 80px;">
+    <a href="terms-of-service" class="hover-effect">Terms of Service</a>
+    <a href="privacy-policy" class="hover-effect">Privacy Policy</a>
+    <a href="return-policy" class="hover-effect">Return Policy</a>
+</p>
     </div>
 </body>
 </html>
