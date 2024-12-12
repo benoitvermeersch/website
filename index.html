@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg" href="images/favicon.svg">
     <title>TrendSeeker</title>
     <style>
     body {
@@ -47,8 +48,15 @@
     font-size: 14px; /* Set smaller font size */
     }
     .hover-effect:hover {
-        color: white; /* Change color on hover */
+        color: #d5d5d5; /* Change color on hover */
     }
+    .footer-links {
+    position: absolute;
+    bottom: 25px; /* 25px from the bottom */
+    width: 100%; /* Ensure it spans the container width */
+    text-align: center; /* Center-align the links */
+}
+
     #phone-number {
         margin-top: 20px;
         font-size: 16px;
@@ -93,7 +101,7 @@
         <p id="phone-number">Phone Number: +32 490 41 50 77</p>
         <p>VAT Registration Number: BE1013551812</p>
         <p>A Belgian-based company coming soon to the App Store</p>
-<p style="margin-top: 210px;">
+<p class="footer-links">
     <a href="terms-of-service" class="hover-effect">Terms of Service</a>
     <a href="privacy-policy" class="hover-effect">Privacy Policy</a>
     <a href="return-policy" class="hover-effect">Return Policy</a>
