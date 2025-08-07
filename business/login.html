@@ -180,6 +180,13 @@
                     window.location.href = "home";
                 }
             });
+
+            // Trigger login on Enter key
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
         </script>
     </div>
 </body>
