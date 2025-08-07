@@ -15,17 +15,19 @@
             background-size: 100% 100%;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
 
         .container {
             background-color: #252525;
             font-family: Arial, sans-serif;
-            max-width: 500px;
             margin: 55px auto;
             padding: 20px;
+            max-width: 950px;
             border-radius: 8px;
             color: white;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
 
         input,
@@ -60,6 +62,7 @@
             padding: 12px;
             background-color: #49b95a;
             color: white;
+            width: 100%;
             font-size: 18px;
             border: none;
             border-radius: 6px;
@@ -83,17 +86,76 @@
         .status.neutral {
             color: white;
         }
+
+        .form-split {
+            display: flex;
+            gap: 20px;
+        }
+
+        .left-column,
+        .right-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            /* Ensure positioning context */
+        }
+
+        .dropdown {
+            list-style: none;
+            background-color: #333;
+            border-radius: 4px;
+            margin: 0;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            position: absolute;
+            z-index: 10;
+            width: 100%;
+            top: 67px;
+        }
+
+        .dropdown li {
+            padding: 10px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .dropdown li:hover {
+            background-color: #555;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Looker for Businesses</h1>
         <h2>Add an item</h2>
 
-        <input type="text" id="brand" placeholder="Brand" readonly>
-        <input type="text" id="itemName" placeholder="Item Name" required>
-        <textarea id="description" placeholder="Description" required></textarea>
+        <div class="form-split">
+            <!-- LEFT COLUMN -->
+            <div class="left-column">
+                <label style="color:white;">Brand</label>
+                <input type="text" id="brand" readonly>
+
+                <label style="color:white;">Item name</label>
+                <input type="text" id="itemName" required>
+
+                <label style="color:white;">Price (€)</label>
+                <input type="number" id="price" required>
+
+                <label style="color:white;">Description</label>
+                <textarea id="description" required></textarea>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="right-column">
+                <label style="color:white;">Category</label>
+                <input type="text" id="categorySearch" placeholder="Search category...">
+                <ul id="categoryDropdown" class="dropdown"></ul>
+                <div id="dynamicFieldsContainer"></div>
+            </div>
+        </div>
 
         <button id="addBtn">Add Item</button>
 
@@ -162,12 +224,134 @@
 
             loadBrand();
 
+            const priceInput = document.getElementById('price');
+            const categoryInput = document.getElementById('categorySearch');
+            const categoryDropdown = document.getElementById('categoryDropdown');
+
+            let categories = [];
+            let selectedCategory = null;
+            let categoryId = null;
+
+            let associatedTableFields = {};
+            const dynamicFieldsContainer = document.getElementById("dynamicFieldsContainer");
+
+            // Load brand info on load
+            loadBrand();
+
+            // Load all categories from Supabase
+            async function loadCategories() {
+                const { data, error } = await supabase
+                    .from('category')
+                    .select('type');
+
+                if (error || !data) {
+                    console.error("Failed to fetch categories:", error);
+                    return;
+                }
+
+                categories = data.map(cat => cat.type).sort((a, b) => a.localeCompare(b));
+
+                // Display dropdown when input is focused
+                categoryInput.addEventListener('focus', () => {
+                    renderCategoryDropdown(categories);
+                });
+
+                categoryInput.addEventListener('input', () => {
+                    const query = categoryInput.value.toLowerCase();
+                    const filtered = categories.filter(cat =>
+                        cat.toLowerCase().includes(query)
+                    );
+                    renderCategoryDropdown(filtered);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!categoryInput.contains(e.target) && !categoryDropdown.contains(e.target)) {
+                        categoryDropdown.style.display = 'none';
+                    }
+                });
+            }
+
+            loadCategories();
+
+            // Render dropdown list
+            function renderCategoryDropdown(list) {
+                categoryDropdown.innerHTML = "";
+                list.forEach(type => {
+                    const li = document.createElement('li');
+                    li.textContent = type;
+                    li.addEventListener('click', () => {
+                        categoryInput.value = type;
+                        selectedCategory = type;
+                        categoryDropdown.style.display = 'none';
+                        renderDynamicFieldsForCategory(type);
+                    });
+                    categoryDropdown.appendChild(li);
+                });
+                categoryDropdown.style.display = list.length ? 'block' : 'none';
+            }
+
+            async function renderDynamicFieldsForCategory(categoryType) {
+                dynamicFieldsContainer.innerHTML = ""; // Clear previous
+
+                const { data: categoryData, error: catError } = await supabase
+                    .from('category')
+                    .select('associatedTable, id')
+                    .eq('type', categoryType)
+                    .single();
+
+                if (catError || !categoryData || !categoryData.associatedTable) {
+                    console.error("Failed to get associated table:", catError);
+                    return;
+                }
+
+                const tableName = categoryData.associatedTable;
+                categoryId = categoryData.id;
+
+                const { data: sampleData, error: sampleError } = await supabase
+                    .from(tableName)
+                    .select('*')
+                    .limit(1);
+
+                if (sampleError || !sampleData || sampleData.length === 0) {
+                    console.error("Failed to fetch sample row from associated table:", sampleError);
+                    return;
+                }
+
+                const row = sampleData[0];
+                associatedTableFields = {};
+                Object.keys(row).forEach(col => {
+                    if (!['id', 'specificId', 'itemId'].includes(col)) {
+                        const label = document.createElement("label");
+                        label.textContent = col.charAt(0).toUpperCase() + col.slice(1);
+                        label.style.color = "white";
+
+                        const input = document.createElement("input");
+                        input.type = "text";
+                        input.id = `dynamic_${col}`;
+                        input.style.marginBottom = "8px";
+                        input.style.backgroundColor = "#333";
+                        input.style.color = "white";
+                        input.style.border = "none";
+                        input.style.borderRadius = "4px";
+                        input.style.padding = "10px";
+                        input.style.fontSize = "16px";
+
+                        associatedTableFields[col] = input;
+
+                        dynamicFieldsContainer.appendChild(label);
+                        dynamicFieldsContainer.appendChild(input);
+                    }
+                });
+            }
+
             addBtn.addEventListener('click', async () => {
                 const brand = brandInput.value;
                 const name = itemNameInput.value.trim();
                 const description = descriptionInput.value.trim();
+                const price = parseFloat(priceInput.value.trim());
+                const category = categoryInput.value.trim();
 
-                if (!name || !description) {
+                if (!name || !description || isNaN(price) || !category) {
                     setStatus("Please fill in all fields.", "error");
                     return;
                 }
@@ -179,14 +363,27 @@
 
                 setStatus("Adding item...", "neutral");
 
+                let dynamicData = {};
+                for (const [key, input] of Object.entries(associatedTableFields)) {
+                    const val = input.value.trim();
+                    if (!val) {
+                        setStatus(`Please fill in the ${key} field.`, "error");
+                        return;
+                    }
+                    dynamicData[key] = val;
+                }
+
                 const { error: insertError } = await supabase.from('item').insert({
                     name,
                     description,
-                    marqueForeign: userProfile.associated_brand
+                    price,
+                    categoryId,
+                    marqueForeign: userProfile.associated_brand,
+                    ...dynamicData
                 });
 
                 if (insertError) {
-                    console.error(insertError); // helpful for debugging
+                    console.error(insertError);
                     setStatus("Failed to add item.", "error");
                     return;
                 }
@@ -194,7 +391,10 @@
                 setStatus("Item added successfully.", "success");
 
                 itemNameInput.value = "";
+                priceInput.value = "";
                 descriptionInput.value = "";
+                categoryInput.value = "";
+                selectedCategory = null;
             });
         </script>
     </div>
