@@ -160,46 +160,6 @@
                 setStatus("Ready to add item.", "neutral");
             }
 
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-            if (sessionError || !session) {
-                setStatus("Could not get session info.", "error");
-                return;
-            }
-
-            console.log("LOOK HERE NIGGA 2:", session)
-
-            const userId = session.user.id;
-
-            console.log("LOOK HERE NIGGA user id:", userId)
-
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('associated_brand')
-                .eq('id', userId)
-                .single();
-
-            if (profileError || !profile) {
-                setStatus("Failed to get user brand.", "error");
-                return;
-            }
-
-            console.log("LOOK HERE NIGGA:", profile.associated_brand)
-
-            const { data: brandData, error: brandError } = await supabase
-                .from('marque')
-                .select('marqueName')
-                .eq('marqueId', profile.associated_brand)
-                .single();
-
-            if (brandError || !brandData) {
-                setStatus("Failed to get brand name.", "error");
-                return;
-            }
-
-            brandInput.value = brandData.marqueName;
-            setStatus("Ready to add item.", "neutral");
-
             loadBrand();
 
             addBtn.addEventListener('click', async () => {
@@ -213,7 +173,7 @@
                 }
 
                 if (!userProfile || !userProfile.associated_brand) {
-                    setStatus("Brand info missing.", "error");
+                    setStatus("Brand info is missing.", "error");
                     return;
                 }
 
