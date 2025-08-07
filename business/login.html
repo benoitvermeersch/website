@@ -177,8 +177,7 @@
                     await supabase.auth.signOut();
                 } else {
                     setStatus("Login successful. Welcome!", "success");
-                    // Redirect or continue
-                    // window.location.href = "/dashboard.html"; // Example redirect
+                    window.location.href = "/home";
                 }
             });
         </script>
