@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#fecd08">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: linear-gradient(135deg, #fecd08 10%, #49b95a 90%);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: 100% 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #252525;
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 55px auto;
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        input,
+        button {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input {
+            padding: 10px;
+            margin: 8px 0;
+            font-size: 16px;
+            background-color: #333;
+            color: white;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding-right: 40px;
+        }
+
+        .eye-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #49b95a;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .status {
+            margin-top: 10px;
+            font-weight: normal;
+            color: white;
+        }
+
+        .status.error {
+            color: red;
+        }
+
+        .status.success {
+            color: green;
+        }
+
+        .status.neutral {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Looker</h1>
+        <h2>🎉 Congratulations!</h2>
+        <p>Your account was successfully confirmed.</p>
+    </div>
+</body>
+
+</html>
