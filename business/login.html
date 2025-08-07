@@ -133,7 +133,7 @@
             togglePasswordIcon.addEventListener('click', () => {
                 isPasswordVisible = !isPasswordVisible;
                 passwordInput.type = isPasswordVisible ? 'text' : 'password';
-                togglePasswordIcon.src = isPasswordVisible ? 'images/shown.svg' : 'images/hidden.svg';
+                togglePasswordIcon.src = isPasswordVisible ? '../images/shown.svg' : '../images/hidden.svg';
             });
 
             setStatus("Ready to log in.", "neutral");
