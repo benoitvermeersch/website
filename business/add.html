@@ -128,7 +128,11 @@
                     return;
                 }
 
+                console.log("LOOK HERE NIGGA 2:", session)
+
                 const userId = session.user.id;
+
+                console.log("LOOK HERE NIGGA user id:", userId)
 
                 const { data: profile, error: profileError } = await supabase
                     .from('profiles')
@@ -141,10 +145,12 @@
                     return;
                 }
 
+                console.log("LOOK HERE NIGGA:", profile.associated_brand)
+
                 const { data: brandData, error: brandError } = await supabase
                     .from('marque')
                     .select('marqueName')
-                    .eq('id', profile.associated_brand)
+                    .eq('marqueId', profile.associated_brand)
                     .single();
 
                 if (brandError || !brandData) {
