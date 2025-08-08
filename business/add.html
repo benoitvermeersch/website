@@ -234,12 +234,6 @@
 
         <div class="status" id="statusMsg">Preparing form...</div>
 
-        <script>
-            document.getElementById('backBtn').addEventListener('click', function () {
-                window.location.href = 'home'; // change path if needed
-            });
-        </script>
-
         <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
         <script>
             const statusMsg = document.getElementById('statusMsg');
@@ -260,6 +254,7 @@
             const itemNameInput = document.getElementById('itemName');
             const descriptionInput = document.getElementById('description');
             const addBtn = document.getElementById('addBtn');
+            const backBtn = document.getElementById('backBtn');
 
             let userProfile = null;
 
@@ -582,6 +577,14 @@
                 document.getElementById('upload1').textContent = "Drag or click to upload";
                 document.getElementById('upload2').textContent = "Drag or click to upload";
                 document.getElementById('upload3').textContent = "Drag or click to upload";
+            });
+
+            backBtn.addEventListener('click', function () {
+                if (document.referrer) {
+                    window.history.back();
+                } else {
+                    window.location.href = 'home'; // fallback page
+                }
             });
         </script>
     </div>
