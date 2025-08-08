@@ -28,6 +28,20 @@
             color: white;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #backBtn {
+            font-size: 14px !important;
+            max-width: 80px !important;
+            border-radius: 15px !important;
         }
 
         input,
@@ -159,8 +173,16 @@
 </head>
 
 <body>
+    <!-- Wrap button and heading in a header div -->
     <div class="container">
-        <h2>Add an item</h2>
+        <div class="header">
+            <h2>Add an item</h2>
+            <button id="backBtn"
+                style="display:flex;align-items:center;gap:6px;background-color:#333;color:white;border:none;border-radius:6px;cursor:pointer;">
+                <span>Back</span>
+                <img src="../images/back.svg" alt="Back" style="width:18px;height:18px;">
+            </button>
+        </div>
 
         <div class="form-split">
             <!-- LEFT COLUMN -->
@@ -208,10 +230,15 @@
             </div>
         </div>
 
-
         <button id="addBtn">Add Item</button>
 
         <div class="status" id="statusMsg">Preparing form...</div>
+
+        <script>
+            document.getElementById('backBtn').addEventListener('click', function () {
+                window.location.href = 'home'; // change path if needed
+            });
+        </script>
 
         <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
         <script>
