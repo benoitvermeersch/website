@@ -2,11 +2,11 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="theme-color" content="#fecd08">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="theme-color" content="#fecd08" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
         body {
             background: linear-gradient(135deg, #fecd08 10%, #49b95a 90%);
@@ -15,88 +15,432 @@
             background-size: 100% 100%;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
+            font-family: Arial, sans-serif;
         }
 
         .container {
             background-color: #252525;
-            font-family: Arial, sans-serif;
-            max-width: 500px;
             margin: 55px auto;
             padding: 20px;
+            max-width: 1150px;
             border-radius: 8px;
             color: white;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        input,
-        button {
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        input {
-            padding: 10px;
-            margin: 8px 0;
-            font-size: 16px;
-            background-color: #333;
-            color: white;
-        }
-
-        .input-wrapper {
             position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .input-wrapper input {
-            width: 100%;
-            padding-right: 40px;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
         }
 
-        .eye-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-        }
-
-        button {
-            padding: 12px;
-            background-color: #49b95a;
-            color: white;
-            font-size: 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+        h2 {
+            margin: 0;
         }
 
         .status {
-            margin-top: 10px;
+            margin-top: 0;
             font-weight: normal;
             color: white;
         }
 
         .status.error {
-            color: red;
+            color: #ff6b6b;
         }
 
         .status.success {
-            color: green;
+            color: #7bd389;
         }
 
         .status.neutral {
+            color: #ffffff;
+        }
+
+        #addBtn {
+            font-size: 14px !important;
+            max-width: 140px !important;
+            border-radius: 15px !important;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background-color: #333;
             color: white;
+            border: none;
+            cursor: pointer;
+            padding: 12px 10px;
+            display: flex;
+        }
+
+        /* Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+            background: #1f1f1f;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .items-table th,
+        .items-table td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 15px;
+        }
+
+        .items-table thead {
+            background: rgba(255, 255, 255, 0.03);
+            color: #dcdcdc;
+            font-weight: 500;
+            text-transform: none;
+            font-size: 11px;
+            letter-spacing: normal;
+        }
+
+        .item-name {
+            color: #ffffff;
+            /* name: bright */
+            font-weight: 600;
+        }
+
+        .item-desc {
+            color: #bfbfbf;
+            /* slightly darker (less bright) than name */
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .empty {
+            padding: 18px;
+            color: #d0d0d0;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+        }
+
+        @media (max-width: 640px) {
+
+            .items-table th,
+            .items-table td {
+                padding: 10px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Looker</h1>
-        <h2>🎉 Congratulations!</h2>
-        <p>Your account was successfully confirmed.</p>
+        <!-- Change your welcomeText element to a flex container -->
+        <h1 id="welcomeText" style="display: flex; align-items: center; justify-content: center; gap: 10px;">Loading...
+        </h1>
+        <div id="statusMsg" class="status neutral" style="display: flex; align-items: center; gap: 12px;">
+            <span id="statusText">Preparing...</span>
+            <button id="addBtn">
+                <img src="../images/plus.svg" alt="Add" style="width:15px;height:15px;">
+                <span>Add an item</span>
+            </button>
+
+            <button id="editBtn"
+                style="font-size:14px;max-width:140px;border-radius:15px;align-items:center;gap:6px;background-color:#555;color:white;border:none;cursor:pointer;padding:12px 10px;display:flex;opacity:0.5;pointer-events:none;">
+                <img src="../images/pencil.svg" alt="Edit" style="width:15px;height:15px;">
+                <span>Edit</span>
+            </button>
+
+            <button id="removeBtn"
+                style="font-size:14px;max-width:140px;border-radius:15px;align-items:center;gap:6px;background-color:#555;color:white;border:none;cursor:pointer;padding:12px 10px;display:flex;opacity:0.5;pointer-events:none;">
+                <img src="../images/trash.svg" alt="Remove" style="width:15px;height:15px;">
+                <span>Delete</span>
+            </button>
+
+            <button id="logoutBtn"
+                style="margin-left:auto; background-color:#FF3B30; color:white; border:none; padding:10px 20px; font-size:14px; border-radius:5px; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                Log out
+            </button>
+        </div>
+
+        <div id="content">
+            <!-- Table will be inserted here -->
+        </div>
     </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const statusMsg = document.getElementById('statusMsg');
+        const content = document.getElementById('content');
+        const brandLabel = document.getElementById('brandLabel');
+        const welcomeText = document.getElementById('welcomeText');
+        const addBtn = document.getElementById('addBtn');
+
+        function setStatus(msg, type = 'neutral') {
+            statusMsg.className = 'status ' + type;
+            statusText.textContent = msg;
+
+            if (type === 'success' && msg.startsWith('Items loaded')) {
+                addBtn.style.display = 'flex';
+            } else {
+                addBtn.style.display = 'none';
+            }
+        }
+
+        // Initialize Supabase client (same URL + anon key you used)
+        const supabase = window.supabase.createClient(
+            "https://zpcqbxjmagxyrahcdgsp.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwY3FieGptYWd4eXJhaGNkZ3NwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUwMDExNzAsImV4cCI6MjAzMDU3NzE3MH0.M9EfEMJPISponRYI8hzvIRt3iY-rZGu7y1AvXwgeGKM"
+        );
+
+
+        async function loadItemsForBrand() {
+            try {
+                setStatus('Connecting...', 'neutral');
+
+                // get session
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError) {
+                    console.error(sessionError);
+                    setStatus('Unable to connect: ' + sessionError.message, 'error');
+                    return;
+                }
+                if (!session) {
+                    setStatus('No active session found. Please sign in.', 'error');
+                    content.innerHTML = '<div class="empty">You must be signed in to view items for your brand.</div>';
+                    return;
+                }
+
+                const userId = session.user.id;
+                setStatus('Loading profile...', 'neutral');
+
+                // fetch profile to get associated_brand
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('associated_brand')
+                    .eq('id', userId)
+                    .single();
+
+                if (profileError) {
+                    console.error(profileError);
+                    setStatus('Could not load profile: ' + profileError.message, 'error');
+                    return;
+                }
+                if (!profile || !profile.associated_brand) {
+                    setStatus('No associated brand set on profile.', 'error');
+                    content.innerHTML = '<div class="empty">Your profile does not have an associated_brand. Please set it first.</div>';
+                    return;
+                }
+
+                const { data: brandData, error: brandError } = await supabase
+                    .from('marque')
+                    .select('marqueName, marqueImage')
+                    .eq('marqueId', profile.associated_brand)
+                    .single();
+
+                if (brandError || !brandData) {
+                    setStatus("Failed to get brand name.", "error");
+                    return;
+                }
+                // Change this part in your loadItemsForBrand()
+                welcomeText.innerHTML = `Welcome to Looker, ${brandData.marqueName}!
+                    <img src="${brandData.marqueImage}" style="height: 40px; width: auto;">`;
+
+                const brand = profile.associated_brand;
+
+                setStatus('Fetching items...', 'neutral');
+
+                // fetch items for the brand
+                const { data: items, error: itemsError } = await supabase
+                    .from('item')
+                    .select('name, description, numberOfHearts, numberOfGems, photo')
+                    .eq('marqueForeign', brand)
+                    .order('name', { ascending: true });
+
+                if (itemsError) {
+                    console.error(itemsError);
+                    setStatus('Error loading items: ' + itemsError.message, 'error');
+                    content.innerHTML = '<div class="empty">Error loading items.</div>';
+                    return;
+                }
+
+                if (!items || items.length === 0) {
+                    setStatus('No items found for this brand.', 'neutral');
+                    content.innerHTML = '<div class="empty">No items found for brand <strong>' + brand + '</strong>.</div>';
+                    return;
+                }
+
+                // Build table
+                const table = document.createElement('table');
+                table.className = 'items-table';
+
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr>
+                        <th> </th>
+                        <th> </th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th class="center">Hearts</th>
+                        <th class="center">Gems</th>
+                    </tr>`;
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+
+                items.forEach(it => {
+                    const tr = document.createElement('tr');
+
+                    // Checkbox cell
+                    const tdCheck = document.createElement('td');
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.style.appearance = 'none';
+                    checkbox.style.width = '16px';
+                    checkbox.style.height = '16px';
+                    checkbox.style.border = '2px solid white';
+                    checkbox.style.borderRadius = '4px';
+                    checkbox.style.background = 'transparent';
+                    checkbox.style.cursor = 'pointer';
+
+                    checkbox.addEventListener('change', function () {
+                        if (this.checked) {
+                            this.style.background = 'white';
+                        } else {
+                            this.style.background = 'transparent';
+                        }
+                    });
+                    checkbox.className = 'itemCheckbox';
+                    tdCheck.appendChild(checkbox);
+                    tr.appendChild(tdCheck);
+
+                    // Thumbnail cell
+                    const tdThumb = document.createElement('td');
+                    if (it.photo) {
+                        const img = document.createElement('img');
+                        img.src = it.photo;
+                        img.alt = it.name || 'item photo';
+                        img.style.width = '25px';
+                        img.style.height = '25px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '2px';
+                        tdThumb.appendChild(img);
+                    } else {
+                        tdThumb.textContent = '—';
+                    }
+                    tr.appendChild(tdThumb);
+
+                    // Name cell
+                    const tdName = document.createElement('td');
+                    const nameSpan = document.createElement('div');
+                    nameSpan.className = 'item-name';
+                    nameSpan.textContent = it.name ?? '(no name)';
+
+                    // Tooltip with full name
+                    if (it.name) {
+                        nameSpan.title = it.name;
+                    }
+
+                    tdName.appendChild(nameSpan);
+                    tr.appendChild(tdName);
+
+                    // Description cell
+                    const tdDesc = document.createElement('td');
+                    const descSpan = document.createElement('div');
+                    descSpan.className = 'item-desc';
+                    const rawDesc = it.description ?? '';
+
+                    // Tooltip with full description
+                    if (rawDesc) {
+                        descSpan.title = rawDesc;
+                    }
+
+                    // Take first 15 characters for display
+                    let truncated = rawDesc.slice(0, 35);
+                    if (rawDesc.length > 35) truncated += '…';
+                    descSpan.textContent = truncated;
+
+                    tdDesc.appendChild(descSpan);
+                    tr.appendChild(tdDesc);
+
+                    const tdHearts = document.createElement('td');
+                    tdHearts.className = 'center';
+                    tdHearts.textContent = (it.numberOfHearts != null) ? it.numberOfHearts : '0';
+                    tr.appendChild(tdHearts);
+
+                    const tdGems = document.createElement('td');
+                    tdGems.className = 'center';
+                    tdGems.textContent = (it.numberOfGems != null) ? it.numberOfGems : '0';
+                    tr.appendChild(tdGems);
+
+                    tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+                content.innerHTML = '';
+                content.appendChild(table);
+                setStatus('Items loaded (' + items.length + ')', 'success');
+
+                const removeBtn = document.getElementById('removeBtn');
+                const editBtn = document.getElementById('editBtn');
+                function updateButtonsState() {
+                    const checkedCount = document.querySelectorAll('.itemCheckbox:checked').length;
+
+                    // Remove button active if at least one is selected
+                    if (checkedCount >= 1) {
+                        removeBtn.style.opacity = '1';
+                        removeBtn.style.pointerEvents = 'auto';
+                        removeBtn.style.backgroundColor = '#333';
+                    } else {
+                        removeBtn.style.opacity = '0.5';
+                        removeBtn.style.pointerEvents = 'none';
+                        removeBtn.style.backgroundColor = '#555';
+                    }
+
+                    // Edit button active only if exactly one is selected
+                    if (checkedCount === 1) {
+                        editBtn.style.opacity = '1';
+                        editBtn.style.pointerEvents = 'auto';
+                        editBtn.style.backgroundColor = '#333';
+                    } else {
+                        editBtn.style.opacity = '0.5';
+                        editBtn.style.pointerEvents = 'none';
+                        editBtn.style.backgroundColor = '#555';
+                    }
+                }
+                document.querySelectorAll('.itemCheckbox').forEach(cb => cb.addEventListener('change', updateButtonsState));
+            } catch (err) {
+                console.error(err);
+                setStatus('Unexpected error: ' + (err.message || err), 'error');
+                content.innerHTML = '<div class="empty">Unexpected error occurred. Check console for details.</div>';
+            }
+        }
+
+        // Run on load
+        (function () {
+            loadItemsForBrand();
+        })();
+
+        addBtn.addEventListener('click', () => {
+            window.location.href = 'add';
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                setStatus("Error signing out: " + error.message, "error");
+                return;
+            }
+            window.location.href = 'login';
+        });
+    </script>
 </body>
 
 </html>
