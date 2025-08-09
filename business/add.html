@@ -463,14 +463,14 @@
             const getFile3 = setupImageUpload('upload3');
 
             addBtn.addEventListener('click', async () => {
+                setStatus("Configuring item...", "neutral");
+
                 const brand = brandInput.value;
                 const name = itemNameInput.value.trim();
                 const description = descriptionInput.value.trim();
                 const price = parseFloat(priceInput.value.trim());
                 const category = categoryInput.value.trim();
                 const gender = genderInput.value.trim();
-
-                setStatus("Configuring item...", "neutral");
 
                 if (!name || !description || isNaN(price) || !category || !genderInput.value) {
                     setStatus("Please fill in all fields.", "error");
@@ -481,6 +481,8 @@
                     setStatus("Brand info is missing.", "error");
                     return;
                 }
+
+                const file1 = getFile1();
 
                 if (!file1) {
                     setStatus("Image 1 is required.", "error");
@@ -499,7 +501,6 @@
 
                 setStatus("Uploading images...", "neutral");
 
-                const file1 = getFile1();
                 const file2 = getFile2();
                 const file3 = getFile3();
 
