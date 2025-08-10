@@ -318,6 +318,11 @@
                     return;
                 }
 
+                console.log("userProfile associated brand:", userProfile.associated_brand);
+                console.log("User profile:", userProfile);
+                console.log("Item brand ID:", itemData.marque.marqueId);
+                console.log("true or not?", userProfile.associated_brand !== itemData.marque.marqueId);
+
                 // 🔹 Authorization check — redirect if brand doesn't match
                 if (!userProfile || userProfile.associated_brand !== itemData.marque.marqueId) {
                     setStatus("Failed to LOAD: no userprofile.", "error");
