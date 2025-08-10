@@ -15,56 +15,68 @@
             background-size: 100% 100%;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
 
         .container {
             background-color: #252525;
             font-family: Arial, sans-serif;
-            max-width: 500px;
             margin: 55px auto;
             padding: 20px;
+            max-width: 1150px;
             border-radius: 8px;
             color: white;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #backBtn {
+            font-size: 14px !important;
+            max-width: 80px !important;
+            border-radius: 15px !important;
         }
 
         input,
+        textarea,
         button {
             width: 100%;
             box-sizing: border-box;
         }
 
-        input {
+        input,
+        textarea {
             padding: 10px;
             margin: 8px 0;
             font-size: 16px;
             background-color: #333;
             color: white;
+            border: none;
+            border-radius: 4px;
         }
 
-        .input-wrapper {
-            position: relative;
+        input[readonly] {
+            background-color: #444;
+            color: #bbb;
         }
 
-        .input-wrapper input {
-            width: 100%;
-            padding-right: 40px;
-        }
-
-        .eye-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
+        textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         button {
             padding: 12px;
             background-color: #49b95a;
             color: white;
+            width: 100%;
             font-size: 18px;
             border: none;
             border-radius: 6px;
@@ -88,14 +100,508 @@
         .status.neutral {
             color: white;
         }
+
+        .form-split {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-split {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .left-column,
+        .middle-column,
+        .right-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .dropdown {
+            list-style: none;
+            background-color: #333;
+            border-radius: 4px;
+            margin-top: 8px;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            position: absolute;
+            z-index: 10;
+            width: 100%;
+            top: 67px;
+            font-size: 16px;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .dropdown li {
+            padding: 10px;
+            cursor: pointer;
+            color: white;
+            background-color: #333;
+            border-bottom: 1px solid #444;
+        }
+
+        .dropdown li:hover {
+            background-color: #555;
+        }
+
+        .image-upload {
+            border: 2px dashed #555;
+            border-radius: 6px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: center;
+        }
+
+        .image-upload.dragover {
+            background-color: #444;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Wrap button and heading in a header div -->
     <div class="container">
-        <h1>Looker</h1>
-        <h2>🎉 Congratulations!</h2>
-        <p>Your account was successfully confirmed.</p>
+        <div class="header">
+            <h2>Add an item</h2>
+            <button id="backBtn"
+                style="display:flex;align-items:center;gap:6px;background-color:#333;color:white;border:none;border-radius:6px;cursor:pointer;">
+                <span>Back</span>
+                <img src="../images/back.svg" alt="Back" style="width:18px;height:18px;">
+            </button>
+        </div>
+
+        <div class="form-split">
+            <!-- LEFT COLUMN -->
+            <div class="left-column">
+                <label style="color:white;">Brand</label>
+                <input type="text" id="brand" readonly>
+
+                <label style="color:white;">Item name</label>
+                <input type="text" id="itemName" required>
+
+                <label style="color:white;">Price (€)</label>
+                <input type="number" id="price" required>
+
+                <label style="color:white;">Gender</label>
+                <select id="gender" required
+                    style="padding: 10px; margin: 8px 0; font-size: 16px; background-color: #333; color: white; border: none; border-radius: 4px;">
+                    <option value="">Select gender</option>
+                    <option value="Men">Men</option>
+                    <option value="Women">Women</option>
+                    <option value="Unisex">Unisex</option>
+                </select>
+
+                <label style="color:white;">Description</label>
+                <textarea id="description" required></textarea>
+            </div>
+
+            <!-- MIDDLE COLUMN -->
+            <div class="middle-column">
+                <label style="color:white;">Category</label>
+                <input type="text" id="categorySearch" placeholder="Search category...">
+                <ul id="categoryDropdown" class="dropdown"></ul>
+                <div id="dynamicFieldsContainer"></div>
+            </div>
+
+            <!-- RIGHT COLUMN (Photos) -->
+            <div class="right-column" id="photoColumn">
+                <label style="color:white;">Image 1 (required)</label>
+                <div class="image-upload" id="upload1">Drag or click to upload</div>
+
+                <label style="color:white; margin-top: 15px;">Image 2 (optional)</label>
+                <div class="image-upload" id="upload2">Drag or click to upload</div>
+
+                <label style="color:white; margin-top: 15px;">Image 3 (optional)</label>
+                <div class="image-upload" id="upload3">Drag or click to upload</div>
+            </div>
+        </div>
+
+        <button id="updateBtn">Update Item</button>
+
+        <div class="status" id="statusMsg">Preparing form...</div>
+
+        <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+        <script>
+            const statusMsg = document.getElementById('statusMsg');
+
+            function setStatus(message, type = 'neutral') {
+                statusMsg.textContent = message;
+                statusMsg.className = 'status ' + type;
+            }
+
+            setStatus("Connecting...", "neutral");
+
+            const supabase = window.supabase.createClient(
+                "https://zpcqbxjmagxyrahcdgsp.supabase.co",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwY3FieGptYWd4eXJhaGNkZ3NwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUwMDExNzAsImV4cCI6MjAzMDU3NzE3MH0.M9EfEMJPISponRYI8hzvIRt3iY-rZGu7y1AvXwgeGKM"
+            );
+
+            const brandInput = document.getElementById('brand');
+            const itemNameInput = document.getElementById('itemName');
+            const descriptionInput = document.getElementById('description');
+            const backBtn = document.getElementById('backBtn');
+
+            let userProfile = null;
+
+            async function loadBrand() {
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+                if (sessionError || !session) {
+                    setStatus("Could not get session info.", "error");
+                    return;
+                }
+
+                const userId = session.user.id;
+
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('associated_brand')
+                    .eq('id', userId)
+                    .single();
+
+                if (profileError || !profile) {
+                    setStatus("Failed to get user brand.", "error");
+                    return;
+                }
+
+                userProfile = profile;
+
+                const { data: brandData, error: brandError } = await supabase
+                    .from('marque')
+                    .select('marqueName')
+                    .eq('marqueId', profile.associated_brand)
+                    .single();
+
+                if (brandError || !brandData) {
+                    setStatus("Failed to get brand name.", "error");
+                    return;
+                }
+
+                brandInput.value = brandData.marqueName;
+            }
+
+            loadBrand();
+
+            const priceInput = document.getElementById('price');
+            const genderInput = document.getElementById('gender');
+            const categoryInput = document.getElementById('categorySearch');
+            const categoryDropdown = document.getElementById('categoryDropdown');
+
+            // Get itemId from query string: edit.html?itemId=123
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemId = urlParams.get('itemId');
+
+            async function loadItemForEdit() {
+                if (!itemId) {
+                    setStatus("No item ID provided.", "error");
+                    return;
+                }
+
+                // Fetch item and associated table data
+                const { data: itemData, error: itemError } = await supabase
+                    .from('item')
+                    .select(`
+            *,
+            category:type,
+            marque:marqueForeign(marqueName)
+        `)
+                    .eq('itemId', itemId)
+                    .single();
+
+                if (itemError || !itemData) {
+                    setStatus("Failed to load item data.", "error");
+                    return;
+                }
+
+                // Fill basic fields
+                brandInput.value = itemData.marque.marqueName;
+                itemNameInput.value = itemData.name;
+                descriptionInput.value = itemData.description;
+                priceInput.value = itemData.price;
+                genderInput.value = itemData.gender;
+                categoryInput.value = itemData.category;
+                selectedCategory = itemData.category;
+
+                // Render dynamic fields for category and prefill
+                await renderDynamicFieldsForCategory(itemData.category);
+                const { data: assocData } = await supabase
+                    .from(tableName)
+                    .select('*')
+                    .eq('itemId', itemId)
+                    .single();
+
+                if (assocData) {
+                    for (const [key, input] of Object.entries(associatedTableFields)) {
+                        if (assocData[key] !== undefined) {
+                            input.value = assocData[key];
+                        }
+                    }
+                }
+
+                // Show existing images
+                if (itemData.photo) {
+                    document.getElementById('upload1').style.backgroundImage = `url('${itemData.photo}')`;
+                    document.getElementById('upload1').style.backgroundSize = 'cover';
+                }
+                if (itemData.photo2) {
+                    document.getElementById('upload2').style.backgroundImage = `url('${itemData.photo2}')`;
+                    document.getElementById('upload2').style.backgroundSize = 'cover';
+                }
+                if (itemData.photo3) {
+                    document.getElementById('upload3').style.backgroundImage = `url('${itemData.photo3}')`;
+                    document.getElementById('upload3').style.backgroundSize = 'cover';
+                }
+
+                setStatus("Ready to edit item.", "neutral");
+            }
+
+            loadItemForEdit();
+
+
+            let categories = [];
+            let categoryId = null;
+            let tableName = null;
+
+            let associatedTableFields = {};
+            const dynamicFieldsContainer = document.getElementById("dynamicFieldsContainer");
+
+            // Load brand info on load
+            loadBrand();
+
+            // Load all categories from Supabase
+            async function loadCategories() {
+                const { data, error } = await supabase
+                    .from('category')
+                    .select('type');
+
+                if (error || !data) {
+                    console.error("Failed to fetch categories:", error);
+                    return;
+                }
+
+                categories = data.map(cat => cat.type).sort((a, b) => a.localeCompare(b));
+
+                // Display dropdown when input is focused
+                categoryInput.addEventListener('focus', () => {
+                    renderCategoryDropdown(categories);
+                });
+
+                categoryInput.addEventListener('input', () => {
+                    const query = categoryInput.value.toLowerCase();
+                    const filtered = categories.filter(cat =>
+                        cat.toLowerCase().includes(query)
+                    );
+                    renderCategoryDropdown(filtered);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!categoryInput.contains(e.target) && !categoryDropdown.contains(e.target)) {
+                        categoryDropdown.style.display = 'none';
+                    }
+                });
+            }
+
+            loadCategories();
+
+            // Render dropdown list
+            function renderCategoryDropdown(list) {
+                categoryDropdown.innerHTML = "";
+                list.forEach(type => {
+                    const li = document.createElement('li');
+                    li.textContent = type;
+                    li.addEventListener('click', () => {
+                        categoryInput.value = type;
+                        selectedCategory = type;
+                        categoryDropdown.style.display = 'none';
+                        renderDynamicFieldsForCategory(type);
+                    });
+                    categoryDropdown.appendChild(li);
+                });
+                categoryDropdown.style.display = list.length ? 'block' : 'none';
+            }
+
+            async function renderDynamicFieldsForCategory(categoryType) {
+                dynamicFieldsContainer.innerHTML = ""; // Clear previous
+
+                const { data: categoryData, error: catError } = await supabase
+                    .from('category')
+                    .select('associatedTable, id')
+                    .eq('type', categoryType)
+                    .single();
+
+                if (catError || !categoryData || !categoryData.associatedTable) {
+                    console.error("Failed to get associated table:", catError);
+                    return;
+                }
+
+                tableName = categoryData.associatedTable;
+                categoryId = categoryData.id;
+
+                const { data: sampleData, error: sampleError } = await supabase
+                    .from(tableName)
+                    .select('*')
+                    .limit(1);
+
+                if (sampleError || !sampleData || sampleData.length === 0) {
+                    console.error("Failed to fetch sample row from associated table:", sampleError);
+                    return;
+                }
+
+                const row = sampleData[0];
+                associatedTableFields = {};
+                Object.keys(row).forEach(col => {
+                    if (!['id', 'specificId', 'itemId'].includes(col)) {
+                        const label = document.createElement("label");
+                        label.textContent = col.charAt(0).toUpperCase() + col.slice(1);
+                        label.style.color = "white";
+
+                        const input = document.createElement("input");
+                        input.type = "text";
+                        input.id = `dynamic_${col}`;
+                        input.style.marginBottom = "8px";
+                        input.style.backgroundColor = "#333";
+                        input.style.color = "white";
+                        input.style.border = "none";
+                        input.style.borderRadius = "4px";
+                        input.style.padding = "10px";
+                        input.style.fontSize = "16px";
+
+                        associatedTableFields[col] = input;
+
+                        dynamicFieldsContainer.appendChild(label);
+                        dynamicFieldsContainer.appendChild(input);
+                    }
+                });
+            }
+
+            function setupImageUpload(elementId) {
+                const uploadBox = document.getElementById(elementId);
+                let file = null;
+
+                uploadBox.addEventListener('click', () => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.onchange = () => {
+                        if (input.files.length > 0) {
+                            file = input.files[0];
+                            uploadBox.textContent = file.name;
+                        }
+                    };
+                    input.click();
+                });
+
+                uploadBox.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadBox.classList.add('dragover');
+                });
+
+                uploadBox.addEventListener('dragleave', () => {
+                    uploadBox.classList.remove('dragover');
+                });
+
+                uploadBox.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadBox.classList.remove('dragover');
+                    if (e.dataTransfer.files.length > 0) {
+                        file = e.dataTransfer.files[0];
+                        uploadBox.textContent = file.name;
+                    }
+                });
+
+                return () => file;
+            }
+
+            const getFile1 = setupImageUpload('upload1');
+            const getFile2 = setupImageUpload('upload2');
+            const getFile3 = setupImageUpload('upload3');
+
+            updateBtn.addEventListener('click', async () => {
+                setStatus("Updating item...", "neutral");
+
+                const updates = {
+                    name: itemNameInput.value.trim(),
+                    description: descriptionInput.value.trim(),
+                    price: parseFloat(priceInput.value.trim()),
+                    gender: genderInput.value.trim(),
+                    categoryId,
+                };
+
+                // Handle new image uploads (only replace if new file selected)
+                const file1 = getFile1();
+                const file2 = getFile2();
+                const file3 = getFile3();
+
+                async function uploadImage(file, path) {
+                    const { error } = await supabase.storage
+                        .from('item-images')
+                        .upload(path, file, { upsert: true });
+                    if (error) throw error;
+                    const { data: urlData } = supabase.storage.from('item-images').getPublicUrl(path);
+                    return urlData.publicUrl;
+                }
+
+                try {
+                    if (file1) updates.photo = await uploadImage(file1, `${itemId}/photo1.jpg`);
+                    if (file2) updates.photo2 = await uploadImage(file2, `${itemId}/photo2.jpg`);
+                    if (file3) updates.photo3 = await uploadImage(file3, `${itemId}/photo3.jpg`);
+                } catch (err) {
+                    console.error(err);
+                    setStatus("Image upload failed.", "error");
+                    return;
+                }
+
+                // Update item
+                const { error: updateError } = await supabase
+                    .from('item')
+                    .update(updates)
+                    .eq('itemId', itemId);
+
+                if (updateError) {
+                    setStatus("Failed to update item.", "error");
+                    return;
+                }
+
+                // Update associated table
+                let dynamicData = {};
+                for (const [key, input] of Object.entries(associatedTableFields)) {
+                    dynamicData[key] = input.value.trim();
+                }
+                const { error: assocUpdateError } = await supabase
+                    .from(tableName)
+                    .update(dynamicData)
+                    .eq('itemId', itemId);
+
+                if (assocUpdateError) {
+                    setStatus("Failed to update category details.", "error");
+                    return;
+                }
+
+                setStatus("Item updated successfully.", "success");
+            });
+
+            backBtn.addEventListener('click', function () {
+                if (document.referrer) {
+                    window.history.back();
+                } else {
+                    window.location.href = 'home'; // fallback page
+                }
+            });
+        </script>
     </div>
 </body>
 

@@ -117,6 +117,31 @@
             font-size: 13px;
         }
 
+        .pagination {
+            display: flex;
+            justify-content: center;
+            /* center everything horizontally */
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .pagination button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
         .center {
             text-align: center;
         }
@@ -182,11 +207,15 @@
         const welcomeText = document.getElementById('welcomeText');
         const addBtn = document.getElementById('addBtn');
 
+        let currentPage = 1;
+        const pageSize = 40;
+        let allItems = [];
+
         function setStatus(msg, type = 'neutral') {
             statusMsg.className = 'status ' + type;
             statusText.textContent = msg;
 
-            if (type === 'success' && msg.startsWith('Items loaded')) {
+            if (type === 'success') {
                 addBtn.style.display = 'flex';
             } else {
                 addBtn.style.display = 'none';
@@ -259,9 +288,9 @@
                 // fetch items for the brand
                 const { data: items, error: itemsError } = await supabase
                     .from('item')
-                    .select('name, description, numberOfHearts, numberOfGems, photo')
+                    .select('itemId, name, description, numberOfHearts, numberOfGems, photo, created_at')
                     .eq('marqueForeign', brand)
-                    .order('name', { ascending: true });
+                    .order('created_at', { ascending: false });
 
                 if (itemsError) {
                     console.error(itemsError);
@@ -276,145 +305,184 @@
                     return;
                 }
 
-                // Build table
-                const table = document.createElement('table');
-                table.className = 'items-table';
-
-                const thead = document.createElement('thead');
-                thead.innerHTML = `
-                    <tr>
-                        <th> </th>
-                        <th> </th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th class="center">Hearts</th>
-                        <th class="center">Gems</th>
-                    </tr>`;
-                table.appendChild(thead);
-
-                const tbody = document.createElement('tbody');
-
-                items.forEach(it => {
-                    const tr = document.createElement('tr');
-
-                    // Checkbox cell
-                    const tdCheck = document.createElement('td');
-
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.style.appearance = 'none';
-                    checkbox.style.width = '16px';
-                    checkbox.style.height = '16px';
-                    checkbox.style.border = '2px solid white';
-                    checkbox.style.borderRadius = '4px';
-                    checkbox.style.background = 'transparent';
-                    checkbox.style.cursor = 'pointer';
-
-                    checkbox.addEventListener('change', function () {
-                        if (this.checked) {
-                            this.style.background = 'white';
-                        } else {
-                            this.style.background = 'transparent';
-                        }
-                    });
-                    checkbox.className = 'itemCheckbox';
-                    tdCheck.appendChild(checkbox);
-                    tr.appendChild(tdCheck);
-
-                    // Thumbnail cell
-                    const tdThumb = document.createElement('td');
-                    if (it.photo) {
-                        const img = document.createElement('img');
-                        img.src = it.photo;
-                        img.alt = it.name || 'item photo';
-                        img.style.width = '25px';
-                        img.style.height = '25px';
-                        img.style.objectFit = 'cover';
-                        img.style.borderRadius = '2px';
-                        tdThumb.appendChild(img);
-                    } else {
-                        tdThumb.textContent = '—';
-                    }
-                    tr.appendChild(tdThumb);
-
-                    // Name cell
-                    const tdName = document.createElement('td');
-                    const nameSpan = document.createElement('div');
-                    nameSpan.className = 'item-name';
-                    nameSpan.textContent = it.name ?? '(no name)';
-
-                    // Tooltip with full name
-                    if (it.name) {
-                        nameSpan.title = it.name;
-                    }
-
-                    tdName.appendChild(nameSpan);
-                    tr.appendChild(tdName);
-
-                    // Description cell
-                    const tdDesc = document.createElement('td');
-                    const descSpan = document.createElement('div');
-                    descSpan.className = 'item-desc';
-                    const rawDesc = it.description ?? '';
-
-                    // Tooltip with full description
-                    if (rawDesc) {
-                        descSpan.title = rawDesc;
-                    }
-
-                    // Take first 15 characters for display
-                    let truncated = rawDesc.slice(0, 35);
-                    if (rawDesc.length > 35) truncated += '…';
-                    descSpan.textContent = truncated;
-
-                    tdDesc.appendChild(descSpan);
-                    tr.appendChild(tdDesc);
-
-                    const tdHearts = document.createElement('td');
-                    tdHearts.className = 'center';
-                    tdHearts.textContent = (it.numberOfHearts != null) ? it.numberOfHearts : '0';
-                    tr.appendChild(tdHearts);
-
-                    const tdGems = document.createElement('td');
-                    tdGems.className = 'center';
-                    tdGems.textContent = (it.numberOfGems != null) ? it.numberOfGems : '0';
-                    tr.appendChild(tdGems);
-
-                    tbody.appendChild(tr);
-                });
-
-                table.appendChild(tbody);
-                content.innerHTML = '';
-                content.appendChild(table);
-                setStatus('Items loaded (' + items.length + ')', 'success');
+                allItems = items;
 
                 const removeBtn = document.getElementById('removeBtn');
                 const editBtn = document.getElementById('editBtn');
+
                 function updateButtonsState() {
                     const checkedCount = document.querySelectorAll('.itemCheckbox:checked').length;
 
-                    // Remove button active if at least one is selected
-                    if (checkedCount >= 1) {
-                        removeBtn.style.opacity = '1';
-                        removeBtn.style.pointerEvents = 'auto';
-                        removeBtn.style.backgroundColor = '#333';
-                    } else {
-                        removeBtn.style.opacity = '0.5';
-                        removeBtn.style.pointerEvents = 'none';
-                        removeBtn.style.backgroundColor = '#555';
-                    }
+                    removeBtn.style.opacity = checkedCount >= 1 ? '1' : '0.5';
+                    removeBtn.style.pointerEvents = checkedCount >= 1 ? 'auto' : 'none';
+                    removeBtn.style.backgroundColor = checkedCount >= 1 ? '#333' : '#555';
 
-                    // Edit button active only if exactly one is selected
-                    if (checkedCount === 1) {
-                        editBtn.style.opacity = '1';
-                        editBtn.style.pointerEvents = 'auto';
-                        editBtn.style.backgroundColor = '#333';
-                    } else {
-                        editBtn.style.opacity = '0.5';
-                        editBtn.style.pointerEvents = 'none';
-                        editBtn.style.backgroundColor = '#555';
-                    }
+                    editBtn.style.opacity = checkedCount === 1 ? '1' : '0.5';
+                    editBtn.style.pointerEvents = checkedCount === 1 ? 'auto' : 'none';
+                    editBtn.style.backgroundColor = checkedCount === 1 ? '#333' : '#555';
                 }
+
+                function renderTable(page) {
+                    const start = (page - 1) * pageSize;
+                    const end = start + pageSize;
+                    const pageItems = allItems.slice(start, end);
+
+                    const table = document.createElement('table');
+                    table.className = 'items-table';
+
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = `
+                        <tr>
+                            <th> </th>
+                            <th> </th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th class="center">Hearts</th>
+                            <th class="center">Gems</th>
+                        </tr>`;
+
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+
+                    pageItems.forEach(it => {
+                        const tr = document.createElement('tr');
+
+                        // Checkbox cell
+                        const tdCheck = document.createElement('td');
+                        const checkbox = document.createElement('input');
+                        checkbox.dataset.id = it.itemId; // store item id in checkbox
+                        checkbox.type = 'checkbox';
+                        checkbox.style.appearance = 'none';
+                        checkbox.style.width = '16px';
+                        checkbox.style.height = '16px';
+                        checkbox.style.border = '2px solid white';
+                        checkbox.style.borderRadius = '4px';
+                        checkbox.style.background = 'transparent';
+                        checkbox.style.cursor = 'pointer';
+                        checkbox.addEventListener('change', function () {
+                            this.style.background = this.checked ? 'white' : 'transparent';
+                        });
+                        checkbox.className = 'itemCheckbox';
+                        tdCheck.appendChild(checkbox);
+                        tr.appendChild(tdCheck);
+
+                        // Thumbnail
+                        const tdThumb = document.createElement('td');
+                        if (it.photo) {
+                            const img = document.createElement('img');
+                            img.src = it.photo;
+                            img.alt = it.name || 'item photo';
+                            img.style.width = '25px';
+                            img.style.height = '25px';
+                            img.style.objectFit = 'cover';
+                            img.style.borderRadius = '2px';
+                            tdThumb.appendChild(img);
+                        } else {
+                            tdThumb.textContent = '—';
+                        }
+                        tr.appendChild(tdThumb);
+
+                        // Name
+                        const tdName = document.createElement('td');
+                        const nameSpan = document.createElement('div');
+                        nameSpan.className = 'item-name';
+                        nameSpan.textContent = it.name ?? '(no name)';
+                        if (it.name) nameSpan.title = it.name;
+                        tdName.appendChild(nameSpan);
+                        tr.appendChild(tdName);
+
+                        // Description
+                        const tdDesc = document.createElement('td');
+                        const descSpan = document.createElement('div');
+                        descSpan.className = 'item-desc';
+                        const rawDesc = it.description ?? '';
+                        if (rawDesc) descSpan.title = rawDesc;
+                        let truncated = rawDesc.slice(0, 40);
+                        if (rawDesc.length > 40) truncated += '…';
+                        descSpan.textContent = truncated;
+                        tdDesc.appendChild(descSpan);
+                        tr.appendChild(tdDesc);
+
+                        // Date
+                        const tdDate = document.createElement('td');
+                        if (it.created_at) {
+                            const dateObj = new Date(it.created_at);
+                            const localTime = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            const localDate = dateObj.toLocaleDateString([], { day: '2-digit', month: '2-digit', year: 'numeric' });
+                            tdDate.textContent = `${localTime}, ${localDate}`;
+                        } else {
+                            tdDate.textContent = '—';
+                        }
+                        tr.appendChild(tdDate);
+
+                        // Hearts
+                        const tdHearts = document.createElement('td');
+                        tdHearts.className = 'center';
+                        tdHearts.textContent = it.numberOfHearts != null ? it.numberOfHearts : '0';
+                        tr.appendChild(tdHearts);
+
+                        // Gems
+                        const tdGems = document.createElement('td');
+                        tdGems.className = 'center';
+                        tdGems.textContent = it.numberOfGems != null ? it.numberOfGems : '0';
+                        tr.appendChild(tdGems);
+
+                        tbody.appendChild(tr);
+                    });
+
+                    table.appendChild(tbody);
+
+                    // Pagination footer
+                    const pagination = document.createElement('div');
+                    pagination.className = 'pagination';
+                    const rangeText = document.createElement('span');
+                    rangeText.textContent = `${start + 1}-${Math.min(end, allItems.length)} of ${allItems.length}`;
+
+                    const nav = document.createElement('div');
+                    const prevBtn = document.createElement('button');
+                    prevBtn.textContent = '←';
+                    prevBtn.disabled = page === 1;
+                    prevBtn.onclick = () => { currentPage--; renderTable(currentPage); };
+
+                    const nextBtn = document.createElement('button');
+                    nextBtn.textContent = '→';
+                    nextBtn.disabled = end >= allItems.length;
+                    nextBtn.onclick = () => { currentPage++; renderTable(currentPage); };
+
+                    nav.appendChild(prevBtn);
+                    nav.appendChild(nextBtn);
+
+                    pagination.appendChild(rangeText);
+                    pagination.appendChild(nav);
+
+                    content.innerHTML = '';
+                    content.appendChild(table);
+                    content.appendChild(pagination);
+
+                    setStatus('Items loaded (' + allItems.length + ')', 'success');
+
+                    // rebind checkbox listeners
+                    const removeBtn = document.getElementById('removeBtn');
+                    const editBtn = document.getElementById('editBtn');
+                    function updateButtonsState() {
+                        const checkedCount = document.querySelectorAll('.itemCheckbox:checked').length;
+                        removeBtn.style.opacity = checkedCount >= 1 ? '1' : '0.5';
+                        removeBtn.style.pointerEvents = checkedCount >= 1 ? 'auto' : 'none';
+                        removeBtn.style.backgroundColor = checkedCount >= 1 ? '#333' : '#555';
+                        editBtn.style.opacity = checkedCount === 1 ? '1' : '0.5';
+                        editBtn.style.pointerEvents = checkedCount === 1 ? 'auto' : 'none';
+                        editBtn.style.backgroundColor = checkedCount === 1 ? '#333' : '#555';
+                    }
+                    document.querySelectorAll('.itemCheckbox').forEach(cb =>
+                        cb.addEventListener('change', updateButtonsState)
+                    );
+                    updateButtonsState(); // ✅ ensures buttons start in disabled state
+                }
+
+                renderTable(currentPage);
+
                 document.querySelectorAll('.itemCheckbox').forEach(cb => cb.addEventListener('change', updateButtonsState));
             } catch (err) {
                 console.error(err);
@@ -430,6 +498,37 @@
 
         addBtn.addEventListener('click', () => {
             window.location.href = 'add';
+        });
+
+        removeBtn.onclick = async () => {
+            const selectedIds = Array.from(document.querySelectorAll('.itemCheckbox:checked'))
+                .map(cb => cb.dataset.id);
+
+            if (selectedIds.length === 0) return;
+
+            console.log('selectedIds: ', selectedIds);
+
+            if (!confirm(`Delete ${selectedIds.length} item(s)? This cannot be undone.`)) return;
+
+            setStatus('Deleting...', 'neutral');
+
+            const { error } = await supabase
+                .from('item')
+                .delete()
+                .in('itemId', selectedIds); // changed to itemId
+
+            if (error) {
+                console.error(error);
+                setStatus('Error deleting items: ' + error.message, 'error');
+                return;
+            }
+
+            await loadItemsForBrand();
+            setStatus(`Deleted ${selectedIds.length} item(s).`, 'success');
+        };
+
+        editBtn.addEventListener('click', () => {
+            window.location.href = `edit.html?itemId=${itemId}`;
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
