@@ -96,6 +96,8 @@
         <h1>Looker for Businesses</h1>
         <h2>Login</h2>
 
+        <div class="status" id="statusMsg">Connecting...</div>
+
         <input type="email" id="email" placeholder="Email" required>
 
         <div class="input-wrapper">
@@ -103,18 +105,17 @@
             <img src="../images/hidden.svg" class="eye-icon" id="togglePassword">
         </div>
 
-        <p id="forgotPasswordLink" style="color:#49b95a;cursor:pointer;margin-top:5px;text-decoration:underline;">
+        <button id="loginBtn" style="margin-top:10px;">Login</button>
+
+        <p id="forgotPasswordLink" style="color:#49b95a;cursor:pointer;margin-top:10px;text-decoration:underline;">
             Forgot password?
         </p>
 
-        <div id="forgotPasswordSection" style="display:none;margin-top:10px;margin-bottom:15px;">
+        <div id="forgotPasswordSection" style="display:none;margin-top:5px;margin-bottom:15px;">
             <input type="email" id="forgotEmail" placeholder="Enter the email linked to your account">
             <div class="status" id="forgotStatus"></div>
             <button id="sendResetBtn" style="margin-top:8px;">Send reset link</button>
         </div>
-        <button id="loginBtn">Login</button>
-
-        <div class="status" id="statusMsg">Connecting...</div>
 
         <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
         <script>
