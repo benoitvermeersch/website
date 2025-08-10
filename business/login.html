@@ -103,6 +103,15 @@
             <img src="../images/hidden.svg" class="eye-icon" id="togglePassword">
         </div>
 
+        <p id="forgotPasswordLink" style="color:#49b95a;cursor:pointer;margin-top:5px;text-decoration:underline;">
+            Forgot password?
+        </p>
+
+        <div id="forgotPasswordSection" style="display:none;margin-top:10px;margin-bottom:15px;">
+            <input type="email" id="forgotEmail" placeholder="Enter the email linked to your account">
+            <div class="status" id="forgotStatus"></div>
+            <button id="sendResetBtn" style="margin-top:8px;">Send reset link</button>
+        </div>
         <button id="loginBtn">Login</button>
 
         <div class="status" id="statusMsg">Connecting...</div>
@@ -185,6 +194,68 @@
             document.addEventListener('keydown', function (event) {
                 if (event.key === 'Enter') {
                     loginBtn.click();
+                }
+            });
+
+            function setForgotStatus(message, type = 'neutral') {
+                forgotStatus.textContent = message;
+                forgotStatus.className = 'status ' + type;
+            }
+
+            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+            const forgotPasswordSection = document.getElementById('forgotPasswordSection');
+            const forgotEmailInput = document.getElementById('forgotEmail');
+            const forgotStatus = document.getElementById('forgotStatus');
+            const sendResetBtn = document.getElementById('sendResetBtn');
+
+            forgotPasswordLink.addEventListener('click', () => {
+                forgotPasswordSection.style.display = forgotPasswordSection.style.display === 'none' ? 'block' : 'none';
+            });
+
+            let resetCooldown = false;
+            let resetTimer;
+
+            sendResetBtn.addEventListener('click', async () => {
+                if (resetCooldown) {
+                    setForgotStatus(`Please wait before trying again.`, "error");
+                    return;
+                }
+
+                const email = forgotEmailInput.value.trim();
+                if (!email) {
+                    setForgotStatus("Please enter your email address.", "error");
+                    return;
+                }
+
+                setForgotStatus("Sending reset link...", "neutral");
+
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: 'acme://reset-password'
+                });
+
+                if (error) {
+                    setForgotStatus("Error: " + error.message, "error");
+                } else {
+                    setForgotStatus("Password reset email sent successfully.", "success");
+
+                    // Start cooldown
+                    resetCooldown = true;
+                    sendResetBtn.disabled = true;
+                    sendResetBtn.style.backgroundColor = "#888"; // greyed out
+                    let secondsLeft = 60;
+                    sendResetBtn.textContent = `Send reset link (${secondsLeft}s)`;
+
+                    resetTimer = setInterval(() => {
+                        secondsLeft--;
+                        sendResetBtn.textContent = `Send reset link (${secondsLeft}s)`;
+                        if (secondsLeft <= 0) {
+                            clearInterval(resetTimer);
+                            resetCooldown = false;
+                            sendResetBtn.disabled = false;
+                            sendResetBtn.style.backgroundColor = "#49b95a";
+                            sendResetBtn.textContent = "Send reset link";
+                        }
+                    }, 1000);
                 }
             });
         </script>
