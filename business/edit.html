@@ -210,12 +210,10 @@
             </div>
 
             <!-- MIDDLE COLUMN -->
-            <div class="middle-column">
-                <label style="color:white;">Category</label>
-                <input type="text" id="categorySearch" placeholder="Search category...">
-                <ul id="categoryDropdown" class="dropdown"></ul>
-                <div id="dynamicFieldsContainer"></div>
-            </div>
+            <label style="color:white;">Category</label>
+            <input type="text" id="categorySearch" placeholder="Search category..." readonly>
+            <ul id="categoryDropdown" class="dropdown"></ul>
+            <div id="dynamicFieldsContainer"></div>
 
             <!-- RIGHT COLUMN (Photos) -->
             <div class="right-column" id="photoColumn">
@@ -262,8 +260,7 @@
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
                 if (sessionError || !session) {
-                    setStatus("Failed to LOAD: no session.", "error");
-                    //window.location.href = '../unauthorized';
+                    window.location.href = '../unauthorized';
                     return;
                 }
 
@@ -292,9 +289,7 @@
 
             async function loadItemForEdit() {
                 if (!itemId) {
-                    setStatus("Failed to LOAD: no itemId.", "error");
-
-                    //window.location.href = '../unauthorized';
+                    window.location.href = '../unauthorized';
                     return;
                 }
 
@@ -321,8 +316,7 @@
 
                 // 🔹 Authorization check — redirect if brand doesn't match
                 if (!userProfile || userProfile.associated_brand !== itemData.marque.marqueId) {
-                    setStatus("Failed to LOAD: no userprofile.", "error");
-                    //window.location.href = '../unauthorized';
+                    window.location.href = '../unauthorized';
                     return;
                 }
 
