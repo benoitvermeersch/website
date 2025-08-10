@@ -336,7 +336,7 @@
                 const { data: assocData } = await supabase
                     .from(tableName)
                     .select('*')
-                    .eq('itemId', itemId)
+                    .eq('id', itemId)
                     .single();
 
                 if (assocData) {
