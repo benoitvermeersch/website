@@ -261,7 +261,7 @@
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
                 if (sessionError || !session) {
-                    window.location.href = 'unauthorized';
+                    window.location.href = '../unauthorized';
                     return;
                 }
 
@@ -294,7 +294,7 @@
 
             async function loadItemForEdit() {
                 if (!itemId) {
-                    window.location.href = 'unauthorized';
+                    window.location.href = '../unauthorized';
                     return;
                 }
 
@@ -318,7 +318,7 @@
 
                 // 🔹 Authorization check — redirect if brand doesn't match
                 if (!userProfile || userProfile.associated_brand !== itemData.marque.marqueId) {
-                    window.location.href = 'unauthorized';
+                    window.location.href = '../unauthorized';
                     return;
                 }
 
@@ -329,10 +329,10 @@
                 priceInput.value = itemData.price;
                 genderInput.value = itemData.gender;
                 categoryInput.value = itemData.category.type;
-                selectedCategory = itemData.category;
+                selectedCategory = itemData.category.type;
 
                 // Render dynamic fields for category and prefill
-                await renderDynamicFieldsForCategory(itemData.category);
+                await renderDynamicFieldsForCategory(itemData.category.type);
                 const { data: assocData } = await supabase
                     .from(tableName)
                     .select('*')
