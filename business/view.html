@@ -528,6 +528,12 @@
         };
 
         editBtn.addEventListener('click', () => {
+            const selectedCheckbox = document.querySelector('.itemCheckbox:checked');
+            if (!selectedCheckbox) {
+                alert('Please select one item to edit.');
+                return;
+            }
+            const itemId = selectedCheckbox.dataset.id;
             window.location.href = `edit.html?itemId=${itemId}`;
         });
 
