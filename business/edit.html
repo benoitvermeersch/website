@@ -336,7 +336,7 @@
                 const { data: assocData } = await supabase
                     .from(tableName)
                     .select('*')
-                    .eq('id', itemId)
+                    .eq('itemId', itemId)
                     .single();
 
                 if (assocData) {
@@ -430,6 +430,9 @@
 
             async function renderDynamicFieldsForCategory(categoryType) {
                 dynamicFieldsContainer.innerHTML = ""; // Clear previous
+
+                console.log("categoryData:", categoryData);
+                console.log("categoryData.associatedTable:", categoryData.associatedTable);
 
                 const { data: categoryData, error: catError } = await supabase
                     .from('category')
