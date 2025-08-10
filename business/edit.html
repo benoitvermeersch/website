@@ -318,7 +318,7 @@
 
                 // 🔹 Authorization check — redirect if brand doesn't match
                 if (!userProfile || userProfile.associated_brand !== itemData.marque.marqueId) {
-                    setStatus("Unauthorized access to this item.", "error");
+                    window.location.href = 'unauthorized';
                     return;
                 }
 
@@ -328,7 +328,7 @@
                 descriptionInput.value = itemData.description;
                 priceInput.value = itemData.price;
                 genderInput.value = itemData.gender;
-                categoryInput.value = itemData.category;
+                categoryInput.value = itemData.category.type;
                 selectedCategory = itemData.category;
 
                 // Render dynamic fields for category and prefill
@@ -365,7 +365,6 @@
             }
 
             loadItemForEdit();
-
 
             let categories = [];
             let categoryId = null;
