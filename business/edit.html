@@ -381,9 +381,6 @@
             let associatedTableFields = {};
             const dynamicFieldsContainer = document.getElementById("dynamicFieldsContainer");
 
-            // Load brand info on load
-            loadBrand();
-
             // Load all categories from Supabase
             async function loadCategories() {
                 const { data, error } = await supabase
