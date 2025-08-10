@@ -283,14 +283,10 @@
                 userProfile = profile;
             }
 
-            loadBrand();
-
             const priceInput = document.getElementById('price');
             const genderInput = document.getElementById('gender');
             const categoryInput = document.getElementById('categorySearch');
             const categoryDropdown = document.getElementById('categoryDropdown');
-
-            // Get itemId from query string: edit.html?itemId=123
             const urlParams = new URLSearchParams(window.location.search);
             const itemId = urlParams.get('itemId');
 
@@ -373,7 +369,10 @@
                 setStatus("Ready to edit item.", "neutral");
             }
 
-            loadItemForEdit();
+            (async () => {
+                await loadBrand();
+                await loadItemForEdit();
+            })();
 
             let categories = [];
             let categoryId = null;
