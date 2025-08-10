@@ -261,7 +261,7 @@
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
                 if (sessionError || !session) {
-                    setStatus("Could not get session info.", "error");
+                    window.location.href = 'unauthorized';
                     return;
                 }
 
@@ -279,19 +279,6 @@
                 }
 
                 userProfile = profile;
-
-                const { data: brandData, error: brandError } = await supabase
-                    .from('marque')
-                    .select('marqueName')
-                    .eq('marqueId', profile.associated_brand)
-                    .single();
-
-                if (brandError || !brandData) {
-                    setStatus("Failed to get brand name.", "error");
-                    return;
-                }
-
-                brandInput.value = brandData.marqueName;
             }
 
             loadBrand();
@@ -307,7 +294,7 @@
 
             async function loadItemForEdit() {
                 if (!itemId) {
-                    setStatus("No item ID provided.", "error");
+                    window.location.href = 'unauthorized';
                     return;
                 }
 
@@ -315,15 +302,23 @@
                 const { data: itemData, error: itemError } = await supabase
                     .from('item')
                     .select(`
-            *,
-            category:type,
-            marque:marqueForeign(marqueName)
-        `)
+                                *,
+                                category:categoryId(type),
+                                marque:marqueForeign(marqueId, marqueName)
+                            `)
                     .eq('itemId', itemId)
                     .single();
 
+                console.log("itemData", itemData);
+
                 if (itemError || !itemData) {
                     setStatus("Failed to load item data.", "error");
+                    return;
+                }
+
+                // 🔹 Authorization check — redirect if brand doesn't match
+                if (!userProfile || userProfile.associated_brand !== itemData.marque.marqueId) {
+                    setStatus("Unauthorized access to this item.", "error");
                     return;
                 }
 
