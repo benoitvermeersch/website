@@ -256,6 +256,7 @@
             const backBtn = document.getElementById('backBtn');
 
             let userProfile = null;
+            let associatedRowId = null;
 
             async function loadBrand() {
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -309,8 +310,6 @@
                     .eq('itemId', itemId)
                     .single();
 
-                console.log("itemData", itemData);
-
                 if (itemError || !itemData) {
                     setStatus("Failed to load item data.", "error");
                     return;
@@ -340,6 +339,7 @@
                     .single();
 
                 if (assocData) {
+                    associatedRowId = assocData.id || assocData.specificId; // store the PK or specificId
                     for (const [key, input] of Object.entries(associatedTableFields)) {
                         if (assocData[key] !== undefined) {
                             input.value = assocData[key];
@@ -436,9 +436,6 @@
                     .select('associatedTable, id')
                     .eq('type', categoryType)
                     .single();
-
-                                    console.log("categoryData:", categoryData);
-                console.log("categoryData.associatedTable:", categoryData.associatedTable);
 
                 if (catError || !categoryData || !categoryData.associatedTable) {
                     console.error("Failed to get associated table:", catError);
@@ -578,6 +575,9 @@
                 for (const [key, input] of Object.entries(associatedTableFields)) {
                     dynamicData[key] = input.value.trim();
                 }
+
+                console.log('tableName:', tableName);
+                console.log('dynamicData:', dynamicData);
                 const { error: assocUpdateError } = await supabase
                     .from(tableName)
                     .update(dynamicData)
